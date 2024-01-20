@@ -1,5 +1,8 @@
 var fs = require('fs');
 var https = require('https');
+var express = express();
+var app = express();
+
 
 (async function () {
     var pfx = await fs.promises.readFile('cert.pfx');
@@ -11,6 +14,6 @@ var https = require('https');
         res.setHeader('Content-type', 'text/html; charset=utf-8');
         res.end(`hello world ${new Date()}`);
     });
-    server.listen(3000);
+    server.listen(process.env.PORT || 3030);
     console.log('started');
 })();
