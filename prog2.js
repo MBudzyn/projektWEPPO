@@ -13,6 +13,6 @@ var https = require('https');
         res.setHeader('Content-type', 'text/html; charset=utf-8');
         res.end(`hello world ${new Date()}`);
     });
-    server.listen(process.env.PORT || 3030);
+    server.listen(process.env.PORT || 10000);
     console.log('started');
 })();
