@@ -1,8 +1,6 @@
 var fs = require('fs');
 var http = require('http');
 
-
-
 (async function () {
     var pfx = await fs.promises.readFile('cert.pfx');
     var server = http.createServer({
