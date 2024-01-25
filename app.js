@@ -70,7 +70,7 @@ async function dodajProdukt(_cena, _nazwa) {
 
 
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
-dodajUzytkownika("zwykly", "aooaoi","ushgai");
+// dodajUzytkownika("zwykly", "aooaoi","ushgai");
 
 
 http.createServer(app).listen(process.env.PORT || 10000)
