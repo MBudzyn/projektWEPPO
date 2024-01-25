@@ -57,4 +57,4 @@ async function dodajUzytkownika() {
 }
 
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
-dodajUzytkownika();
+//dodajUzytkownika();
