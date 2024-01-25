@@ -21,38 +21,57 @@ const { MongoClient } = require('mongodb');
 const uri = 'mongodb://localhost:27017';
 
 // Nazwa bazy danych
-const databaseName = 'NowaBazaDanych';
+const mainDataBase = 'MainDataBase';
 
 // Nazwa kolekcji
-const collectionName = 'uzytkownicy';
+const users_collection = 'uzytkownicy';
+const products_collection = "produkty"
 
-// Przykładowy użytkownik
-const nowyUzytkownik = {
-    id: 1,
-    id_koszyka: 101,
-    haslo: 'haslo123',
-    nick: 'nowy_uzytkownik'
-};
+const nowyProdukt = {
+    cena: 10,
+    nazwa: "produkt1"
+}
 
-async function dodajUzytkownika() {
+async function dodajUzytkownika(_typ,_haslo,_nick) {
     const client = new MongoClient(uri);
 
+    const nowyUzytkownik = {
+        typ: _typ,
+        haslo: _haslo,
+        nick: _nick,
+        koszk: []
+    };
+
     try {
-        // Połącz z bazą danych
         await client.connect();
-
-        // Utwórz lub pobierz kolekcję
-        const kolekcja = client.db(databaseName).collection(collectionName);
-
-        // Dodaj użytkownika do kolekcji
+        const kolekcja = client.db(mainDataBase).collection(users_collection);
         const wynik = await kolekcja.insertOne(nowyUzytkownik);
-
         console.log(`Użytkownik dodany do kolekcji. ID dokumentu: ${wynik.insertedId}`);
+
     } finally {
-        // Zamknij połączenie
         await client.close();
     }
 }
 
+async function dodajProdukt(_cena, _nazwa) {
+    const client = new MongoClient(uri);
+
+    const nowyProdukt = {
+        cena: _cena,
+        nazwa: _nazwa
+    };
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(products_collection);
+        const wynik = await kolekcja.insertOne(nowyProdukt);
+        console.log(`Produkt dodany do kolekcji. ID dokumentu: ${wynik.insertedId}`);
+
+    } finally {
+        await client.close();
+    }
+}
+
+
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
-//dodajUzytkownika();
+dodajUzytkownika("zwykly", "aooaoi","ushgai");
