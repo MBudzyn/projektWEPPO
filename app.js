@@ -86,6 +86,28 @@ async function dodajZamowienie(_user_id, _products_ids) {
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
 //dodajUzytkownika("zwykly", "aooaoi","ushgai");
 
+async function pobierzWszystkieIdKluczy(kolekcja) {
+    const client = new MongoClient(uri);
+
+    try {
+        await client.connect();
+        const kolekcjaMongoDB = client.db(mainDataBase).collection(kolekcja);
+
+        // Pobierz wszystkie dokumenty z kolekcji
+        const dokumenty = await kolekcjaMongoDB.find({}).toArray();
+
+        // Zwróć tylko ID kluczy
+        const idKlucze = dokumenty.map(dokument => dokument._id);
+
+        return idKlucze;
+
+    } finally {
+        await client.close();
+    }
+
+}
+console.log(pobierzWszystkieIdKluczy(users_collection))
 
 http.createServer(app).listen(process.env.PORT || 10000)
 console.log('started');
+
