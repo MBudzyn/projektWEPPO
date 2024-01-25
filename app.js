@@ -9,7 +9,7 @@ var http = require('http');
     },
     (req, res) => {
         res.setHeader('Content-type', 'text/html; charset=utf-8');
-        res.end(`hello world ${new Date()}`);
+        res.end(`hello world`);
     });
     server.listen(process.env.PORT || 10000);
     console.log('started');
@@ -18,7 +18,7 @@ var http = require('http');
 const { MongoClient } = require('mongodb');
 
 // Adres lokalnej bazy danych MongoDB
-const uri = 'mongodb://localhost:27017';
+const uri = 'mongodb://127.0.0.1:27017';
 
 // Nazwa bazy danych
 const mainDataBase = 'MainDataBase';
