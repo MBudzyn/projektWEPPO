@@ -64,6 +64,24 @@ async function dodajProdukt(_cena, _nazwa) {
     }
 }
 
+async function dodajZamowienie(_user_id, _products_ids) {
+    const client = new MongoClient(uri);
+
+    const noweZamowienie= {
+        user_id: _user_id,
+        products_ids: _products_ids
+    };
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(orders_collection);
+        const wynik = await kolekcja.insertOne(noweZamowienie);
+        console.log(`Produkt dodany do kolekcji. ID dokumentu: ${wynik.insertedId}`);
+
+    } finally {
+        await client.close();
+    }
+}
 
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
 //dodajUzytkownika("zwykly", "aooaoi","ushgai");
