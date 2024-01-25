@@ -22,11 +22,7 @@ const mainDataBase = 'MainDataBase';
 // Nazwa kolekcji
 const users_collection = 'uzytkownicy';
 const products_collection = "produkty"
-
-const nowyProdukt = {
-    cena: 10,
-    nazwa: "produkt1"
-}
+const orders_collection = "zamowienia"
 
 async function dodajUzytkownika(_typ,_haslo,_nick) {
     const client = new MongoClient(uri);
