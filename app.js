@@ -1,19 +1,15 @@
 var fs = require('fs');
 var http = require('http');
+var express = require('express');
+var app = express();
 
-(async function () {
-    var pfx = await fs.promises.readFile('cert.pfx');
-    var server = http.createServer({
-        pfx: pfx,
-        passphrase: 'pass'
-    },
-    (req, res) => {
-        res.setHeader('Content-type', 'text/html; charset=utf-8');
-        res.end(`hello world`);
-    });
-    server.listen(process.env.PORT || 10000);
-    console.log('started');
-})();
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
 
 const { MongoClient } = require('mongodb');
 
@@ -75,3 +71,7 @@ async function dodajProdukt(_cena, _nazwa) {
 
 // Uruchom funkcję, aby dodać użytkownika do kolekcji
 dodajUzytkownika("zwykly", "aooaoi","ushgai");
+
+
+http.createServer(app).listen(process.env.PORT || 10000)
+console.log('started');
