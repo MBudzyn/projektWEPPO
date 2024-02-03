@@ -106,7 +106,7 @@ async function pobierzWszystkieIdKluczy(kolekcja) {
     }
 
 }
-console.log(pobierzWszystkieIdKluczy(users_collection))
+
 
 http.createServer(app).listen(process.env.PORT || 10000)
 console.log('started');
