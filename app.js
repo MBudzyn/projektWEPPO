@@ -42,23 +42,38 @@ app.get( '/logout', (req, res) => {
 app.get( '/login', (req, res) => {
     res.render('login');
 });
-
-app.post( '/login', (req, res) => {
+app.post('/login', async (req, res) => {
     var username = req.body.txtUser;
     var pwd = req.body.txtPwd;
-    const users = baza.operateOnParsedUsers();
-    console.log(users.nick);
-    if ( username == pwd) {
+    const users = await baza.operateOnParsedUsers();
+    const user = users.find(user => user.nick === username);
+    console.log(users[0]);
+    if (user && user.haslo === pwd) {
         // wydanie ciastka
         res.cookie('user', username, { signed: true });
         // przekierowanie
         var returnUrl = req.query.returnUrl;
         res.redirect(returnUrl || '/');
     } else {
-        res.render( 'login', { message : "Zła nazwa logowania lub hasło" }
-);
+        res.render('login', { message: "Zła nazwa logowania lub hasło" });
     }
 });
+// app.post( '/login', (req, res) => {
+//     var username = req.body.txtUser;
+//     var pwd = req.body.txtPwd;
+//     const users = baza.operateOnParsedUsers();
+//     console.log(users.nick);
+//     if ( username == pwd) {
+//         // wydanie ciastka
+//         res.cookie('user', username, { signed: true });
+//         // przekierowanie
+//         var returnUrl = req.query.returnUrl;
+//         res.redirect(returnUrl || '/');
+//     } else {
+//         res.render( 'login', { message : "Zła nazwa logowania lub hasło" }
+// );
+//     }
+// });
 
 http.createServer(app).listen(process.env.PORT || 10000)
 console.log('started');
