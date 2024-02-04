@@ -1,31 +1,62 @@
-var fs = require('fs');
+/**
+* @param {http.IncomingMessage} req
+* @param {http.ServerResponse} res
+* @param {*} next
+*/
+function authorize(req, res, next) {
+    if ( req.signedCookies.user ) {
+        req.user = req.signedCookies.user;
+        next();
+    } else {
+        res.redirect('/login?returnUrl='+req.url);
+    }
+}
+
 var http = require('http');
 var express = require('express');
+var cookieParser = require('cookie-parser');
+
 var app = express();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser('sgs90890s8g90as8rg90as8g9r8a0srg8'));
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-
 const { MongoClient } = require('mongodb');
 
 // Adres lokalnej bazy danych MongoDB
-const uri = 'mongodb://127.0.0.1:27017';
+const url = 'mongodb://127.0.0.1:27017';
 
 // Nazwa bazy danych
 const mainDataBase = 'MainDataBase';
 
 // Nazwa kolekcji
 const users_collection = 'uzytkownicy';
-const products_collection = "produkty"
-const orders_collection = "zamowienia"
+const products_collection = "produkty";
+const orders_collection = "zamowienia";
+
+
+async function wypiszProdukty() {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(products_collection);
+
+        const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
+
+        console.log(result);
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
 
 async function pobierzWszystkieIdKluczy(kolekcja) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -46,7 +77,7 @@ async function pobierzWszystkieIdKluczy(kolekcja) {
 }
 // operacje na użytkownikach ----------------------------------------------------------------------------------------------
 async function dodajUzytkownika(_typ,_haslo,_nick) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     const nowyUzytkownik = {
         typ: _typ,
@@ -67,7 +98,7 @@ async function dodajUzytkownika(_typ,_haslo,_nick) {
 }
 
 async function parsedUserToTable(idUzytkownika) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -130,7 +161,7 @@ async function operateOnParsedUser(userId) {
 
 //const noweDane = { typ: "nowyTyp", haslo: "noweHaslo", nick: "nowyNick" };
 async function modyfikujUzytkownika(idUzytkownika, noweDane) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -156,7 +187,7 @@ async function modyfikujUzytkownika(idUzytkownika, noweDane) {
 }
 
 async function usunUzytkownika(idUzytkownika) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -186,7 +217,7 @@ async function usunUzytkownika(idUzytkownika) {
 // operacje na produktach -----------------------------------------------------------------------------------------------------
 
 async function dodajProdukt(_cena, _nazwa) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     const nowyProdukt = {
         cena: _cena,
@@ -218,7 +249,7 @@ async function operateOnParsedProduct(productId) {
 }
 
 async function parsedProductToTable(idProduktu) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -265,7 +296,7 @@ async function operateOnParsedProducts() {
 }
 
 async function modyfikujProdukt(idProduktu, noweDane) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -291,7 +322,7 @@ async function modyfikujProdukt(idProduktu, noweDane) {
 }
 
 async function usunProdukt(idProduktu) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -321,7 +352,7 @@ async function usunProdukt(idProduktu) {
 // operacje na zamowieniach ----------------------------------------------------------------------------------------------
 
 async function dodajZamowienie(_user_id, _products_ids) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     const noweZamowienie= {
         user_id: _user_id,
@@ -354,7 +385,7 @@ async function operateOnParsedOrder(orderId) {
 }
 
 async function parsedOrderToTable(idZamowienia) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -401,7 +432,7 @@ async function operateOnParsedOrders() {
 
 
 async function modyfikujZamowienie(idZamowienia, noweDane) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -427,7 +458,7 @@ async function modyfikujZamowienie(idZamowienia, noweDane) {
 }
 
 async function usunZamowienie(idZamowienia) {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(url);
 
     try {
         await client.connect();
@@ -462,7 +493,36 @@ async function usunZamowienie(idZamowienia) {
 // operateOnParsedOrders();
 //dodajUzytkownika("zwykly","koniczyna","ADAM")
 
+// wymaga logowania dlatego strażnik – middleware „authorize”
+app.get( '/', async (req, res) => {
+    const products = await wypiszProdukty();
+    res.render('index', { user : req.user, products} );
+});
 
+app.get( '/logout', authorize, (req, res) => {
+    res.cookie('user', '', { maxAge: -1 } );
+    res.redirect('/')
+});
+
+// strona logowania
+app.get( '/login', (req, res) => {
+    res.render('login');
+});
+
+app.post( '/login', (req, res) => {
+    var username = req.body.txtUser;
+    var pwd = req.body.txtPwd;
+    if ( username == pwd) {
+        // wydanie ciastka
+        res.cookie('user', username, { signed: true });
+        // przekierowanie
+        var returnUrl = req.query.returnUrl;
+        res.redirect(returnUrl || '/');
+    } else {
+        res.render( 'login', { message : "Zła nazwa logowania lub hasło" }
+);
+    }
+});
 
 http.createServer(app).listen(process.env.PORT || 10000)
 console.log('started');

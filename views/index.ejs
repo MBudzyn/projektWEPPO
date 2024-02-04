@@ -1,13 +1,38 @@
 <!-- views/index.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sklep Internetowy</title>
 </head>
 <body>
-<h1>Index</h1>
+    <h1>Witaj w naszym sklepie internetowym</h1>
+
+    <% if (user) { %>
+        <p>Witaj, <%= user.nick %>!</p>
+        <a href="/logout">Wyloguj się</a>
+    <% } else { %>
+        <a href="/login">Zaloguj się</a>
+        <a href="/register">Zarejestruj się</a>
+    <% } %>
+
+    <h2>Produkty w sklepie</h2>
+    <ul>
+        <% products.forEach(product => { %>
+            <li>
+                <strong><%= product.nazwa %></strong>
+                <!-- <p><%= product.description %></p> -->
+                <p>Cena: <%= product.cena %> PLN</p>
+                <% if (user) { %>
+                    <a href="/addToCart/<%= product._id %>">Dodaj do koszyka</a>
+                <% } %>
+            </li>
+        <% }); %>
+    </ul>
+    <% if (user) { %>
+        <a href="/koszyk">Koszyk</a>
+    <% } %>
 </body>
 </html>
