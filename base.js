@@ -1,4 +1,4 @@
-module.exports = {wypiszProdukty, pobierzWszystkieIdKluczy, dodajUzytkownika, parsedUserToTable, operateOnParsedUsers, operateOnParsedUser, modyfikujUzytkownika, usunUzytkownika, dodajProdukt, operateOnParsedProduct, parsedProductToTable, operateOnParsedProducts, modyfikujProdukt, usunProdukt, dodajZamowienie, operateOnParsedOrder, parsedOrderToTable, operateOnParsedOrders, modyfikujZamowienie, usunZamowienie};
+module.exports = {wypiszProdukty, wypiszUzytkownikow, pobierzWszystkieIdKluczy, dodajUzytkownika, parsedUserToTable, operateOnParsedUsers, operateOnParsedUser, modyfikujUzytkownika, usunUzytkownika, dodajProdukt, operateOnParsedProduct, parsedProductToTable, operateOnParsedProducts, modyfikujProdukt, usunProdukt, dodajZamowienie, operateOnParsedOrder, parsedOrderToTable, operateOnParsedOrders, modyfikujZamowienie, usunZamowienie};
 // funkcje do korzytstania z bazy danych
 const { MongoClient } = require('mongodb');
 const url = 'mongodb://127.0.0.1:27017';
@@ -18,6 +18,20 @@ async function wypiszProdukty() {
     try {
         await client.connect();
         const kolekcja = client.db(mainDataBase).collection(products_collection);
+
+        const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
+async function wypiszUzytkownikow() {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(users_collection);
 
         const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
         return result;
@@ -187,11 +201,12 @@ async function usunUzytkownika(idUzytkownika) {
 //koniec operacji na użytkownikach --------------------------------------------------------------------------------------------------------
 // operacje na produktach -----------------------------------------------------------------------------------------------------
 
-async function dodajProdukt(_cena, _nazwa) {
+async function dodajProdukt(_cena, _nazwa, _opis) {
     const client = new MongoClient(url);
 
     const nowyProdukt = {
         cena: _cena,
+        opis: _opis, 
         nazwa: _nazwa
     };
 

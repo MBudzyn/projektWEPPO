@@ -19,62 +19,47 @@ app.use((req, res, next) => {
     next();
 });
 
+// strona główna
+app.get('/', async (req, res) => {
+    const products = await baza.wypiszProdukty();
+    res.render('index', { user: req.user, products });
+});
+
+app.get('/logout', (req, res) => {
+    res.cookie('user', '', { maxAge: -1 });
+    res.redirect('/');
+});
+
+// strona logowania
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+app.post('/login', async (req, res) => {
+    var username = req.body.txtUser;
+    var pwd = req.body.txtPwd;
+    const users = await baza.wypiszUzytkownikow();
+    const user = users.find(u => u.nick === username);
+    if (user && user.haslo === pwd) {
+        // wydanie ciastka
+        res.cookie('user', user, { signed: true });
+        // przekierowanie
+        var returnUrl = req.query.returnUrl;
+        res.redirect(returnUrl || '/');
+        
+    } else {
+        res.render('login', { message: "Zła nazwa logowania lub hasło", user: req.user });
+    }
+});
+
+
+http.createServer(app).listen(process.env.PORT || 10000)
+console.log('started');
+
 // Wywołanie przykładowego użycia
 //baza.dodajProdukt(100,"zegarek")
 //dodajZamowienie(43943,3223)
 //operateOnParsedUsers();
 // operateOnParsedProducts();
 // operateOnParsedOrders();
-//dodajUzytkownika("zwykly","koniczyna","ADAM")
-
-// strona główna
-app.get( '/', async (req, res) => {
-    const products = await baza.wypiszProdukty();
-    res.render('index', { user : req.user, products} );
-});
-
-app.get( '/logout', (req, res) => {
-    res.cookie('user', '', { maxAge: -1 } );
-    res.redirect('/')
-});
-
-// strona logowania
-app.get( '/login', (req, res) => {
-    res.render('login');
-});
-app.post('/login', async (req, res) => {
-    var username = req.body.txtUser;
-    var pwd = req.body.txtPwd;
-    const users = await baza.operateOnParsedUsers();
-    const user = users.find(user => user.nick === username);
-    console.log(users[0]);
-    if (user && user.haslo === pwd) {
-        // wydanie ciastka
-        res.cookie('user', username, { signed: true });
-        // przekierowanie
-        var returnUrl = req.query.returnUrl;
-        res.redirect(returnUrl || '/');
-    } else {
-        res.render('login', { message: "Zła nazwa logowania lub hasło" });
-    }
-});
-// app.post( '/login', (req, res) => {
-//     var username = req.body.txtUser;
-//     var pwd = req.body.txtPwd;
-//     const users = baza.operateOnParsedUsers();
-//     console.log(users.nick);
-//     if ( username == pwd) {
-//         // wydanie ciastka
-//         res.cookie('user', username, { signed: true });
-//         // przekierowanie
-//         var returnUrl = req.query.returnUrl;
-//         res.redirect(returnUrl || '/');
-//     } else {
-//         res.render( 'login', { message : "Zła nazwa logowania lub hasło" }
-// );
-//     }
-// });
-
-http.createServer(app).listen(process.env.PORT || 10000)
-console.log('started');
+//baza.dodajUzytkownika("zwykly","pass","nick")
 

@@ -91,7 +91,7 @@
 
     <% if (user) { %>
         <div class="user-info">
-            <p>Witaj, <%= user.nick || "anonim"%>!</p>
+            <p>Witaj, <%= user.nick%>!</p>
             <a href="/koszyk">Koszyk</a>
             <a href="/logout">Wyloguj się</a>
         </div>
@@ -115,7 +115,9 @@
             <li>
                 <div class="product-info">
                     <strong><%= product.nazwa %></strong>
+                    <p><%= product.opis %></p>
                     <p>Cena: <%= product.cena %> PLN</p>
+                  
                     <% if (user) { %>
                         <a href="/addToCart/<%= product._id %>">Dodaj do koszyka</a>
                     <% } %>
