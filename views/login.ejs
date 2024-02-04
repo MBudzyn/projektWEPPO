@@ -5,56 +5,57 @@
         <meta charset="UTF-8">
         <title>Document</title>
         <style>
-            html, body, form {
+            /* Copy the CSS styles from index.ejs here */
+            /* BEGIN: CSS styles from index.ejs */
+            html, body {
                 height: 100%;
-                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
             }
-            form {
+            .container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                height: 100%;
             }
-            #login {
+            .content {
                 padding: 20px;
                 border: 1px solid black;
             }
-            #login div {
-                overflow: auto;
+            .content input {
+                margin-bottom: 10px;
             }
-            #login input {
-                float: right;
-            }
-            button {
-                clear: both;
+            .content button {
+                margin-top: 10px;
             }
             .message {
                 color: red;
             }
+            /* END: CSS styles from index.ejs */
         </style>
     </head>
     <body>
-        <form method="POST">
-            <div id='login'>
-                <div>
-                    Logowanie
-                </div>
-                <div>
-                    <input type='text' name='txtUser' />
-                    <label>Nazwa użytkownika:</label>
-                </div>
-                <div>
-                    <input type='password' name='txtPwd' />
-                    <label>Hasło:</label>
-                </div>
-                <div>
-                    <button>Zaloguj</button>
-                </div>
-                <% if ( locals.message ) { %>
-                <div class='message'>
-                    <%= locals.message %>
-                </div>
-                <% } %>
+        <div class="container">
+            <div class="content">
+                <h1>Logowanie</h1>
+                <form method="POST">
+                    <div>
+                        <input type="text" name="txtUser" placeholder="Nazwa użytkownika" />
+                    </div>
+                    <div>
+                        <input type="password" name="txtPwd" placeholder="Hasło" />
+                    </div>
+                    <div>
+                        <button>Zaloguj</button>
+                    </div>
+                    <% if (locals.message) { %>
+                    <div class="message">
+                        <%= locals.message %>
+                    </div>
+                    <% } %>
+                </form>
             </div>
-        </form>
+        </div>
     </body>
 </html>

@@ -11,20 +11,13 @@ app.use(cookieParser('sgs90890s8g90as8rg90as8g9r8a0srg8'));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-/**
-* @param {http.IncomingMessage} req
-* @param {http.ServerResponse} res
-* @param {*} next
-*/
-function authorize(req, res, next) {
-    if ( req.signedCookies.user ) {
+// middleware, który przekazuje do widoków zmienną user
+app.use((req, res, next) => {
+    if (req.signedCookies.user) {
         req.user = req.signedCookies.user;
-        next();
-    } else {
-        res.redirect('/login?returnUrl='+req.url);
     }
-}
-
+    next();
+});
 
 // Wywołanie przykładowego użycia
 //baza.dodajProdukt(100,"zegarek")
@@ -34,13 +27,13 @@ function authorize(req, res, next) {
 // operateOnParsedOrders();
 //dodajUzytkownika("zwykly","koniczyna","ADAM")
 
-// wymaga logowania dlatego strażnik – middleware „authorize”
+// strona główna
 app.get( '/', async (req, res) => {
     const products = await baza.wypiszProdukty();
     res.render('index', { user : req.user, products} );
 });
 
-app.get( '/logout', authorize, (req, res) => {
+app.get( '/logout', (req, res) => {
     res.cookie('user', '', { maxAge: -1 } );
     res.redirect('/')
 });
@@ -53,6 +46,8 @@ app.get( '/login', (req, res) => {
 app.post( '/login', (req, res) => {
     var username = req.body.txtUser;
     var pwd = req.body.txtPwd;
+    const users = baza.operateOnParsedUsers();
+    console.log(users.nick);
     if ( username == pwd) {
         // wydanie ciastka
         res.cookie('user', username, { signed: true });

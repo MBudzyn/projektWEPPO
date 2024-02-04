@@ -20,8 +20,6 @@ async function wypiszProdukty() {
         const kolekcja = client.db(mainDataBase).collection(products_collection);
 
         const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
-
-        console.log(result);
         return result;
 
     } finally {
@@ -101,19 +99,18 @@ async function parsedUserToTable(idUzytkownika) {
 async function operateOnParsedUsers() {
     try {
         const idKlucze = await pobierzWszystkieIdKluczy(users_collection);
-
+        const parsedUsers = [];
         // Iteracja po idKlucze za pomocą pętli for
         for (let i = 0; i < idKlucze.length; i++) {
             const aktualnyId = idKlucze[i];
             const parsedUser = await parsedUserToTable(aktualnyId)
-
-
-            // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            console.log(`infromacje o użytkowniku: ${parsedUser}`);
-
-
+            
+            // // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
+            // console.log(`infromacje o użytkowniku: ${parsedUser}`);
+            parsedUsers.push(parsedUser);
         }
-
+        console.log(parsedUsers);
+        return parsedUsers;
     } catch (error) {
         console.error('Wystąpił błąd:', error);
         throw error;
