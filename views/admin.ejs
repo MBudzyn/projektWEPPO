@@ -109,7 +109,7 @@
     <div id="products">
         <h2>Produkty:</h2>
         <ul>
-            <% products.forEach(function(product) { %>
+            <% products.forEach(product => { %>
                 <li>
                         <div class="product-info">
                             <input type="text" name="nazwaEdit" value="<%=product.nazwa%>">
@@ -130,7 +130,7 @@
     <div id="users">
         <h2>Użytkownicy:</h2>
         <ul>
-            <% users.forEach(function(user) { %>
+            <% users.forEach(user => { %>
                 <li>
                     <%if (user.typ==="zwykly"){%>
                     <div class="user-info">
