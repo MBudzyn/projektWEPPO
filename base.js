@@ -189,6 +189,7 @@ async function usunProdukt(idProduktu) {
 
         // Sprawdź, czy produkt o danym ID istnieje
         const istniejacyProdukt = await kolekcjaMongoDB.findOne({ _id: idProduktu });
+        console.log(istniejacyProdukt)
 
         if (!istniejacyProdukt) {
             console.log(`Produkt o ID ${idProduktu} nie został znaleziony.`);

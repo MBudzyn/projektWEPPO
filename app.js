@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var bcrypt = require('bcrypt');
 let baza = require('./base');
 
+
 var app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -160,5 +161,5 @@ console.log('started');
 //operateOnParsedUsers();
 // operateOnParsedProducts();
 // operateOnParsedOrders();
-baza.dodajUzytkownika("admin","admin","admin")
+// baza.dodajUzytkownika("admin","admin","admin")
 
