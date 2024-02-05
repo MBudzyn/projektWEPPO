@@ -186,19 +186,12 @@ async function usunProdukt(idProduktu) {
     try {
         await client.connect();
         const kolekcjaMongoDB = client.db(mainDataBase).collection(products_collection);
-
-        // Sprawdź, czy produkt o danym ID istnieje
-        const istniejacyProdukt = await kolekcjaMongoDB.findOne({ _id: idProduktu });
-        console.log(istniejacyProdukt)
-
-        if (!istniejacyProdukt) {
-            console.log(`Produkt o ID ${idProduktu} nie został znaleziony.`);
-            return null;
-        }
-
+        const zamowienia = client.db(mainDataBase).collection(orders_collection);
+        const uzytkownicy = client.db(mainDataBase).collection(users_collection);
         // Usuń produkt
         await kolekcjaMongoDB.deleteOne({ _id: idProduktu });
-
+        await zamowienia.updateMany({}, { $pull: { products_ids: idProduktu.toString() } });
+        await uzytkownicy.updateMany({}, { $pull: { koszk: idProduktu.toString() } });
         console.log(`Produkt o ID ${idProduktu} został usunięty.`);
         return true;
 

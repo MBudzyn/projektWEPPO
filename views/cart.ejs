@@ -76,11 +76,13 @@
     <h2>Produkty w koszyku:</h2>
     <ul>
         <% user.koszk.forEach(product_id => { %>
+            <% if (product_id != undefined) { %>
             <li>
                 <strong>Produkt: <%= products.find(p => p._id.toString() === product_id).nazwa %></strong>
                 <p>Cena: <%= products.find(p => p._id.toString() === product_id).cena %> zł</p>
                 <a href="/usun-z-koszyka/<%= product_id %>">Usuń z koszyka</a>
             </li>
+            <% }) %>
         <% }) %>
 
         <% if (user.koszk.length === 0) { %>
@@ -99,11 +101,12 @@
                 
                 <strong>Zamówienie <%= order._id %></strong>
                 <% order.products_ids.forEach(product_id => { %>
-                    
+                    <% if (product_id != undefined) { %>
                     <div class="product-info">
                         <strong>Produkt: <%= products.find(p => p._id.toString() === product_id).nazwa %></strong>
                         <p>Cena: <%= products.find(p => p._id.toString() === product_id).cena %> zł</p>
                     </div>
+                    <% }) %>
                 <% }) %>
             </li>
         <% }) %>

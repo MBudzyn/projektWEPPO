@@ -3,7 +3,8 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bcrypt = require('bcrypt');
 let baza = require('./base');
-
+var db = require('mongodb');
+const { stat } = require('fs');
 
 var app = express();
 
@@ -100,10 +101,32 @@ app.get('/state/:x', async (req, res) => {
 // });
 
 app.get('/deleteProduct/:productId', async (req, res) => {
-    const productId = req.params.productId;
+    const productId = db.ObjectId.createFromHexString(req.params.productId);
     await baza.usunProdukt(productId);
+
     res.redirect('/admin');
 });
+
+app.get('/addProduct', async (req, res) => {
+    var name = req.query.nazwaAdd;
+    var price = req.query.cenaAdd;
+    var desc = req.query.opisAdd;
+    console.log(name, price, desc);
+    await baza.dodajProdukt(price, name, desc);
+    res.redirect('/admin');
+});
+
+// app.get('/admin/search/:s', async (req, res) => {
+//     const search = req.query.search;
+//     const state = req.params.s;
+//     console.log(state, search);
+//     if (state == 1){
+//         const products = await baza.szukajProduktuPoFrazie(search);
+//         res.render('admin', { user: req.user, users, products: products, orders, placeholder: search, stan: 1});
+//     }else if (state == 2){
+
+
+// });
 
 //strona rejestrowania
 app.get('/register', (req, res) => {
