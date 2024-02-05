@@ -161,5 +161,5 @@ console.log('started');
 //operateOnParsedUsers();
 // operateOnParsedProducts();
 // operateOnParsedOrders();
-// baza.dodajUzytkownika("admin","admin","admin")
+baza.dodajUzytkownika("admin","admin","admin")
 
