@@ -1,0 +1,152 @@
+<!-- views/admin.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona administracyjna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .user-info {
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            margin: 0;
+        }
+
+        .product-info {
+            margin-top: 10px;
+        }
+
+        .product-info strong {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .product-info p {
+            margin: 0;
+        }
+
+        .product-info a {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .search-bar input[type="submit"] {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Strona administracyjna</h1>
+    <div class="user-info">
+        <p>Zalogowano jako: <strong><%= user.nick %></strong></p>
+        <a href="/logout">Wyloguj</a>
+    </div>
+    <form method="GET" action="/state/1" style="display: inline-block;">
+        <button type="submit">Produkty</button>
+    </form>
+    <form method="GET" action="/state/2" style="display: inline-block;">
+        <button type="submit">Użytkownicy</button>
+    </form>
+    <form method="GET" action="/state/3" style="display: inline-block;">
+        <button type="submit">Zamówienia</button>
+    </form>
+        </div>
+    </form>
+    <div class="search-bar">
+        <form action="/admin/search" method="GET">
+            <input type="text" name="search" placeholder="<%= placeholder %>">
+            <input type="submit" value="Szukaj">
+        </form>
+    </div>
+    <%if (stan==1){%>
+    <div id="products">
+        <h2>Produkty:</h2>
+        <ul>
+            <% products.forEach(function(product) { %>
+                <li>
+                        <div class="product-info">
+                            <input type="text" name="nazwaEdit" value="<%=product.nazwa%>">
+                            <input type="text" name="cenaEdit" value="<%=product.cena%>">
+                            <input type="text" name="opisEdit" value="<%=product.opis%>">
+                            <a href="/editProduct/<%= product._id %>" style="display: inline-block; margin-right: 10px;">Edytuj</a>
+                            <a href="/deleteProduct/<%= product._id %>" style="display: inline-block;">Usuń</a>
+                        </div>
+                </li>
+            <% }); %>
+        </ul>
+        <input type="text" name="nazwaAdd" placeholder="Nazwa">
+        <input type="text" name="cenaAdd" placeholder="Cena">
+        <input type="text" name="opisAdd" placeholder="Opis">
+        <a href="/addProduct">Dodaj nowy produkt</a>
+    </div>
+    <%} else if (stan==2){%>
+    <div id="users">
+        <h2>Użytkownicy:</h2>
+        <ul>
+            <% users.forEach(function(user) { %>
+                <li>
+                    <div class="user-info">
+                        <p><%= user.nick %></p>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+    <%} else if (stan==3){%>
+    <div id="orders">
+        <h2>Zamówienia:</h2>
+    </div>   
+    <%}%> 
+                        
+                    
+
+       
+</body>
+</html>

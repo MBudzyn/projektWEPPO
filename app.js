@@ -57,17 +57,54 @@ app.post('/login', async (req, res) => {
     var pwd = req.body.txtPwd;
     const users = await baza.wypiszUzytkownikow();
     const user = users.find(u => u.nick === username);
-    if (user && user.haslo === pwd) {
+    if (user && user.haslo === pwd && user.typ === "zwykly") {
         // wydanie ciastka
         res.cookie('user', user, { signed: true });
         // przekierowanie
         var returnUrl = req.query.returnUrl;
         res.redirect(returnUrl || '/');
         
-    } else {
+    }else if (user && user.haslo === pwd && user.typ === "admin") {
+        res.cookie('user', user, { signed: true });
+        res.redirect('/admin');
+    }else {
         res.render('login', { message: "Zła nazwa logowania lub hasło", user: req.user });
     }
 });
+//strona admina
+app.get('/admin', async (req, res) => {
+    const users = await baza.wypiszUzytkownikow();
+    const products = await baza.wypiszProdukty();
+    const orders = await baza.wypiszZamowienia();
+    res.render('admin', { user: req.user, users, products, orders, placeholder: "Wyszukaj", stan: 0});
+});
+
+app.get('/state/:x', async (req, res) => {
+    const state = req.params.x;
+    const users = await baza.wypiszUzytkownikow();
+    const products = await baza.wypiszProdukty();
+    const orders = await baza.wypiszZamowienia();
+    res.render('admin', { user: req.user, users, products, orders, placeholder: "Wyszukaj", stan: state});
+});
+
+// app.get('/editProduct/:productId', async (req, res) => {
+//     const noweDane = {
+//         cena: req.body.cenaEdit,
+//         opis: req.body.opisEdit, 
+//         nazwa: req.body.nazwaEdit
+//     };
+//     console.log(noweDane);
+//     const productId = req.params.productId;
+//     await baza.modyfikujProdukt(productId, noweDane);
+//     res.redirect('/admin');
+// });
+
+app.get('/deleteProduct/:productId', async (req, res) => {
+    const productId = req.params.productId;
+    await baza.usunProdukt(productId);
+    res.redirect('/admin');
+});
+
 //strona rejestrowania
 app.get('/register', (req, res) => {
     res.render('register');
@@ -124,5 +161,5 @@ console.log('started');
 //operateOnParsedUsers();
 // operateOnParsedProducts();
 // operateOnParsedOrders();
-//baza.dodajUzytkownika("zwykly","pass","nick")
+// baza.dodajUzytkownika("admin","admin","admin")
 

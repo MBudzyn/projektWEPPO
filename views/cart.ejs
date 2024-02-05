@@ -82,10 +82,18 @@
                 <a href="/usun-z-koszyka/<%= product_id %>">Usuń z koszyka</a>
             </li>
         <% }) %>
-        <a href="/zamow">Złóż zamówienie</a>
+
+        <% if (user.koszk.length === 0) { %>
+            <p>Twój koszyk jest pusty</p>
+        <% }else { %>
+            <a href="/zamow">Złóż zamówienie</a>    
+        <% } %>
     </ul>
     <h2>Aktywne zamówienia:</h2>
     <ul>
+        <% if (orders.length === 0) { %>
+            <p>Brak aktywnych zamówień</p>
+        <% }else {%>
         <% orders.forEach(order => { %>
             <li>
                 
@@ -99,6 +107,7 @@
                 <% }) %>
             </li>
         <% }) %>
+        <% } %>
     </ul>
     
 </body>

@@ -1,4 +1,4 @@
-module.exports = {wypiszProdukty, dodajDoKoszyka, usunZKoszyka, wyczyscKoszyk, wypiszUzytkownikow, wypiszZamowienia, znajdzProdukt, 
+module.exports = {wypiszProdukty, dodajDoKoszyka, usunZKoszyka, wyczyscKoszyk, wypiszUzytkownikow, wypiszZamowienia,
     dodajUzytkownika, szukajProduktuPoFrazie, dodajProdukt, modyfikujProdukt, usunProdukt, dodajZamowienie};
 // funkcje do korzytstania z bazy danych
 const { MongoClient } = require('mongodb');
@@ -13,27 +13,6 @@ const products_collection = "produkty";
 const orders_collection = "zamowienia";
 
 
-
-// async function pobierzWszystkieIdKluczy(kolekcja) {
-//     const client = new MongoClient(url);
-
-//     try {
-//         await client.connect();
-//         const kolekcjaMongoDB = client.db(mainDataBase).collection(kolekcja);
-
-//         // Pobierz wszystkie dokumenty z kolekcji
-//         const dokumenty = await kolekcjaMongoDB.find({}).toArray();
-
-//         // Zwróć tylko ID kluczy
-//         const idKlucze = dokumenty.map(dokument => dokument._id);
-
-//         return idKlucze;
-
-//     } finally {
-//         await client.close();
-//     }
-
-// }
 // operacje na użytkownikach ----------------------------------------------------------------------------------------------
 async function dodajDoKoszyka(idUzytkownika, idProduktu) {
     const client = new MongoClient(url);
@@ -58,7 +37,6 @@ async function usunZKoszyka(idUzytkownika, idProduktu) {
         await client.connect();
         const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
 
-        // Dodaj produkt do koszyka
         await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $pull: { koszk: idProduktu } });
 
         console.log(`Produkt o ID ${idProduktu} został usunięty z koszyka użytkownika o ID ${idUzytkownika}.`);
@@ -155,21 +133,6 @@ async function szukajProduktuPoFrazie(fraza){
     }
 }
 
-async function znajdzProdukt(idProduktu){
-    const client = new MongoClient(url);
-    
-    try {
-        await client.connect();
-        const kolekcja = client.db(mainDataBase).collection(products_collection);
-
-        const result = await kolekcja.findOne({_id: idProduktu});
-        return result;
-
-    } finally {
-        await client.close();
-    }
-
-}
 
 async function dodajProdukt(_cena, _nazwa, _opis) {
     const client = new MongoClient(url);
@@ -243,7 +206,7 @@ async function usunProdukt(idProduktu) {
         await client.close();
     }
 }
-//koniec operacji na produktach -------------------------------------------------------------------------------------------
+
 // operacje na zamowieniach ----------------------------------------------------------------------------------------------
 async function wypiszZamowienia() {
     const client = new MongoClient(url);

@@ -44,7 +44,7 @@
         }
 
         .user-info a {
-            margin-left: 10px;
+            margin-left: 0px;
         }
 
         .product-info {
@@ -92,6 +92,9 @@
     <% if (user) { %>
         <div class="user-info">
             <p>Witaj, <%= user.nick%>!</p>
+            <% if (user.typ==="admin") { %>
+                <p><a href="/admin">Strona administracyjna</a></p>
+            <% } %>
             <a href="/koszyk">Koszyk</a>
             <a href="/logout">Wyloguj się</a>
         </div>
