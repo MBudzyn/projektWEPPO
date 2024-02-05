@@ -12,7 +12,6 @@ const users_collection = 'uzytkownicy';
 const products_collection = "produkty";
 const orders_collection = "zamowienia";
 
-
 // operacje na użytkownikach ----------------------------------------------------------------------------------------------
 async function dodajDoKoszyka(idUzytkownika, idProduktu) {
     const client = new MongoClient(url);
