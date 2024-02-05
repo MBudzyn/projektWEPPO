@@ -26,12 +26,26 @@ app.use(async (req, res, next) => {
 // strona główna
 app.get('/', async (req, res) => {
     const products = await baza.wypiszProdukty();    
-    res.render('index', { user: req.user, products });
+    res.render('index', { user: req.user, products , placeholder: "Wyszukaj produkt"});
 });
 
 app.get('/logout', (req, res) => {
     res.cookie('user', '', { maxAge: -1 });
     res.redirect('/');
+});
+app.get('/addToCart/:productId', async (req, res) => {
+    const productId = req.params.productId;
+    const user = req.user;
+    await baza.dodajDoKoszyka(user._id, productId);
+    res.redirect('/');    
+});
+app.get('/search', async (req, res) => {
+
+    const search = req.query.search;
+    if (!search) return res.redirect('/');
+    const products = await baza.szukajProduktuPoFrazie(search);
+    console.log(products);
+    res.render('index', { user: req.user, products: products, placeholder: search});
 });
 
 // strona logowania
@@ -74,23 +88,15 @@ app.post('/register', async (req, res) => {
         res.redirect(returnUrl || '/');
     }
 });
+//strona koszyka
 app.get('/koszyk', async (req, res) => {
     const orders = await baza.wypiszZamowienia();
     const products = await baza.wypiszProdukty();
-
-    const userOrders = orders.filter(o => o.userId === req.user._id);
-    console.log(req.user._id);
-    console.log(orders);
-    console.log(req.user.koszk);
+    const userOrders = orders.filter(o => o.user_id.toString() === req.user._id.toString());
+    console.log(userOrders);
     res.render('cart', { user: req.user, orders: userOrders, products });
 });
 
-app.get('/addToCart/:productId', async (req, res) => {
-    const productId = req.params.productId;
-    const user = req.user;
-    await baza.dodajDoKoszyka(user._id, productId);
-    res.redirect('/');    
-});
 app.get('/usun-z-koszyka/:productId', async (req, res) => {
     const productId = req.params.productId;
     const user = req.user;
@@ -98,9 +104,16 @@ app.get('/usun-z-koszyka/:productId', async (req, res) => {
     res.redirect('/koszyk');  
 });
 app.get('/zamow', async (req, res) => {
+    if (req.user.koszk.length != 0) {
     await baza.dodajZamowienie(req.user._id, req.user.koszk);
+    await baza.wyczyscKoszyk(req.user._id);
+    }
+    else {
+        console.log("Koszyk jest pusty");
+    }
     res.redirect('/koszyk');
 });
+
 
 http.createServer(app).listen(process.env.PORT || 10000)
 console.log('started');

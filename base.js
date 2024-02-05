@@ -1,5 +1,5 @@
-module.exports = {wypiszProdukty, dodajDoKoszyka, usunZKoszyka, wypiszUzytkownikow, wypiszZamowienia, znajdzProdukt, 
-    pobierzWszystkieIdKluczy, dodajUzytkownika, dodajProdukt, modyfikujProdukt, usunProdukt, dodajZamowienie};
+module.exports = {wypiszProdukty, dodajDoKoszyka, usunZKoszyka, wyczyscKoszyk, wypiszUzytkownikow, wypiszZamowienia, znajdzProdukt, 
+    dodajUzytkownika, szukajProduktuPoFrazie, dodajProdukt, modyfikujProdukt, usunProdukt, dodajZamowienie};
 // funkcje do korzytstania z bazy danych
 const { MongoClient } = require('mongodb');
 const url = 'mongodb://127.0.0.1:27017';
@@ -14,26 +14,26 @@ const orders_collection = "zamowienia";
 
 
 
-async function pobierzWszystkieIdKluczy(kolekcja) {
-    const client = new MongoClient(url);
+// async function pobierzWszystkieIdKluczy(kolekcja) {
+//     const client = new MongoClient(url);
 
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(kolekcja);
+//     try {
+//         await client.connect();
+//         const kolekcjaMongoDB = client.db(mainDataBase).collection(kolekcja);
 
-        // Pobierz wszystkie dokumenty z kolekcji
-        const dokumenty = await kolekcjaMongoDB.find({}).toArray();
+//         // Pobierz wszystkie dokumenty z kolekcji
+//         const dokumenty = await kolekcjaMongoDB.find({}).toArray();
 
-        // Zwróć tylko ID kluczy
-        const idKlucze = dokumenty.map(dokument => dokument._id);
+//         // Zwróć tylko ID kluczy
+//         const idKlucze = dokumenty.map(dokument => dokument._id);
 
-        return idKlucze;
+//         return idKlucze;
 
-    } finally {
-        await client.close();
-    }
+//     } finally {
+//         await client.close();
+//     }
 
-}
+// }
 // operacje na użytkownikach ----------------------------------------------------------------------------------------------
 async function dodajDoKoszyka(idUzytkownika, idProduktu) {
     const client = new MongoClient(url);
@@ -62,6 +62,22 @@ async function usunZKoszyka(idUzytkownika, idProduktu) {
         await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $pull: { koszk: idProduktu } });
 
         console.log(`Produkt o ID ${idProduktu} został usunięty z koszyka użytkownika o ID ${idUzytkownika}.`);
+
+    } finally {
+        await client.close();
+    }
+}
+async function wyczyscKoszyk(idUzytkownika) {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
+
+        // Wyczyść koszyk
+        await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $set: { koszk: [] } });
+
+        console.log(`Koszyk użytkownika o ID ${idUzytkownika} został wyczyszczony.`);
 
     } finally {
         await client.close();
@@ -117,6 +133,21 @@ async function wypiszProdukty() {
         const kolekcja = client.db(mainDataBase).collection(products_collection);
 
         const result = await kolekcja.find({}).toArray();
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
+
+async function szukajProduktuPoFrazie(fraza){
+    const client = new MongoClient(url);
+    
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(products_collection);
+
+        const result = await kolekcja.find({ $or: [{ nazwa: { $regex: fraza, $options: 'i' } }, { opis: { $regex: fraza, $options: 'i' } }] }).toArray();
         return result;
 
     } finally {
