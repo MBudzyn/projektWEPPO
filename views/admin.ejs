@@ -132,9 +132,11 @@
         <ul>
             <% users.forEach(function(user) { %>
                 <li>
+                    <%if (user.typ==="zwykly"){%>
                     <div class="user-info">
                         <p><%= user.nick %></p>
                     </div>
+                    <%} %>
                 </li>
             <% }); %>
         </ul>

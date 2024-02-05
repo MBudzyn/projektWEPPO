@@ -3,7 +3,6 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bcrypt = require('bcrypt');
 let baza = require('./base');
-const db = require('mongodb');
 
 var app = express();
 
