@@ -1,4 +1,5 @@
-module.exports = {wypiszProdukty, wypiszUzytkownikow, pobierzWszystkieIdKluczy, dodajUzytkownika, parsedUserToTable, operateOnParsedUsers, operateOnParsedUser, modyfikujUzytkownika, usunUzytkownika, dodajProdukt, operateOnParsedProduct, parsedProductToTable, operateOnParsedProducts, modyfikujProdukt, usunProdukt, dodajZamowienie, operateOnParsedOrder, parsedOrderToTable, operateOnParsedOrders, modyfikujZamowienie, usunZamowienie};
+module.exports = {wypiszProdukty, dodajDoKoszyka, usunZKoszyka, wypiszUzytkownikow, wypiszZamowienia, znajdzProdukt, 
+    pobierzWszystkieIdKluczy, dodajUzytkownika, dodajProdukt, modyfikujProdukt, usunProdukt, dodajZamowienie};
 // funkcje do korzytstania z bazy danych
 const { MongoClient } = require('mongodb');
 const url = 'mongodb://127.0.0.1:27017';
@@ -12,34 +13,6 @@ const products_collection = "produkty";
 const orders_collection = "zamowienia";
 
 
-async function wypiszProdukty() {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcja = client.db(mainDataBase).collection(products_collection);
-
-        const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
-        return result;
-
-    } finally {
-        await client.close();
-    }
-}
-async function wypiszUzytkownikow() {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcja = client.db(mainDataBase).collection(users_collection);
-
-        const result = await kolekcja.find({}, { projection: { _id: 0 } }).toArray();
-        return result;
-
-    } finally {
-        await client.close();
-    }
-}
 
 async function pobierzWszystkieIdKluczy(kolekcja) {
     const client = new MongoClient(url);
@@ -62,6 +35,54 @@ async function pobierzWszystkieIdKluczy(kolekcja) {
 
 }
 // operacje na użytkownikach ----------------------------------------------------------------------------------------------
+async function dodajDoKoszyka(idUzytkownika, idProduktu) {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
+
+        // Dodaj produkt do koszyka
+        await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $push: { koszk: idProduktu } });
+
+        console.log(`Produkt o ID ${idProduktu} został dodany do koszyka użytkownika o ID ${idUzytkownika}.`);
+
+    } finally {
+        await client.close();
+    }
+}
+async function usunZKoszyka(idUzytkownika, idProduktu) {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
+
+        // Dodaj produkt do koszyka
+        await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $pull: { koszk: idProduktu } });
+
+        console.log(`Produkt o ID ${idProduktu} został usunięty z koszyka użytkownika o ID ${idUzytkownika}.`);
+
+    } finally {
+        await client.close();
+    }
+}
+
+async function wypiszUzytkownikow() {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(users_collection);
+
+        const result = await kolekcja.find({}).toArray();
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
+
 async function dodajUzytkownika(_typ,_haslo,_nick) {
     const client = new MongoClient(url);
 
@@ -83,123 +104,41 @@ async function dodajUzytkownika(_typ,_haslo,_nick) {
     }
 }
 
-async function parsedUserToTable(idUzytkownika) {
-    const client = new MongoClient(url);
 
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
-
-        // Pobierz użytkownika o danym ID
-        const uzytkownik = await kolekcjaMongoDB.findOne({ _id: idUzytkownika });
-
-        // Sprawdź, czy użytkownik został znaleziony
-        if (!uzytkownik) {
-            console.log(`Użytkownik o ID ${idUzytkownika} nie został znaleziony.`);
-            return null; // Możesz zdecydować, jak obsłużyć brak znalezionego użytkownika
-        }
-
-        // Zamień atrybuty obiektu na tablicę
-        const tablicaAtrybutow = Object.values(uzytkownik);
-
-        // Zamknij połączenie z bazą danych
-        return tablicaAtrybutow;
-
-    } finally {
-        await client.close();
-    }
-}
-
-async function operateOnParsedUsers() {
-    try {
-        const idKlucze = await pobierzWszystkieIdKluczy(users_collection);
-        const parsedUsers = [];
-        // Iteracja po idKlucze za pomocą pętli for
-        for (let i = 0; i < idKlucze.length; i++) {
-            const aktualnyId = idKlucze[i];
-            const parsedUser = await parsedUserToTable(aktualnyId)
-            
-            // // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            // console.log(`infromacje o użytkowniku: ${parsedUser}`);
-            parsedUsers.push(parsedUser);
-        }
-        console.log(parsedUsers);
-        return parsedUsers;
-    } catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
-
-async function operateOnParsedUser(userId) {
-    try {
-        const parsedUser = await parsedUserToTable(userId)
-            // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            console.log(`infromacje o użytkowniku: ${parsedUser}`);
-        }
-
-    catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
-
-//const noweDane = { typ: "nowyTyp", haslo: "noweHaslo", nick: "nowyNick" };
-async function modyfikujUzytkownika(idUzytkownika, noweDane) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
-
-        // Sprawdź, czy użytkownik o danym ID istnieje
-        const istniejacyUzytkownik = await kolekcjaMongoDB.findOne({ _id: idUzytkownika });
-
-        if (!istniejacyUzytkownik) {
-            console.log(`Użytkownik o ID ${idUzytkownika} nie został znaleziony.`);
-            return null;
-        }
-
-        // Zaktualizuj dane użytkownika
-        await kolekcjaMongoDB.updateOne({ _id: idUzytkownika }, { $set: noweDane });
-
-        console.log(`Użytkownik o ID ${idUzytkownika} został zaktualizowany.`);
-        return true;
-
-    } finally {
-        await client.close();
-    }
-}
-
-async function usunUzytkownika(idUzytkownika) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(users_collection);
-
-        // Sprawdź, czy użytkownik o danym ID istnieje
-        const istniejacyUzytkownik = await kolekcjaMongoDB.findOne({ _id: idUzytkownika });
-
-        if (!istniejacyUzytkownik) {
-            console.log(`Użytkownik o ID ${idUzytkownika} nie został znaleziony.`);
-            return null;
-        }
-
-        // Usuń użytkownika
-        await kolekcjaMongoDB.deleteOne({ _id: idUzytkownika });
-
-        console.log(`Użytkownik o ID ${idUzytkownika} został usunięty.`);
-        return true;
-
-    } finally {
-        await client.close();
-    }
-}
 
 
 //koniec operacji na użytkownikach --------------------------------------------------------------------------------------------------------
 // operacje na produktach -----------------------------------------------------------------------------------------------------
+async function wypiszProdukty() {
+    const client = new MongoClient(url);
+
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(products_collection);
+
+        const result = await kolekcja.find({}).toArray();
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
+
+async function znajdzProdukt(idProduktu){
+    const client = new MongoClient(url);
+    
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(products_collection);
+
+        const result = await kolekcja.findOne({_id: idProduktu});
+        return result;
+
+    } finally {
+        await client.close();
+    }
+
+}
 
 async function dodajProdukt(_cena, _nazwa, _opis) {
     const client = new MongoClient(url);
@@ -221,65 +160,6 @@ async function dodajProdukt(_cena, _nazwa, _opis) {
     }
 }
 
-async function operateOnParsedProduct(productId) {
-    try {
-        const parsedProduct = await parsedProductToTable(userId)
-            // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            console.log(`infromacje o użytkowniku: ${parsedProduct}`);
-        }
-
-    catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
-
-async function parsedProductToTable(idProduktu) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(products_collection);
-
-        // Pobierz użytkownika o danym ID
-        const produkt = await kolekcjaMongoDB.findOne({ _id: idProduktu });
-
-        // Sprawdź, czy użytkownik został znaleziony
-        if (!produkt) {
-            console.log(`Użytkownik o ID ${idProduktu} nie został znaleziony.`);
-            return null; // Możesz zdecydować, jak obsłużyć brak znalezionego użytkownika
-        }
-
-        // Zamień atrybuty obiektu na tablicę
-        const tablicaAtrybutow = Object.values(produkt);
-
-        // Zamknij połączenie z bazą danych
-        return tablicaAtrybutow;
-
-    } finally {
-        await client.close();
-    }
-}
-
-async function operateOnParsedProducts() {
-    try {
-        const idKlucze = await pobierzWszystkieIdKluczy(products_collection);
-
-        // Iteracja po idKlucze za pomocą pętli for
-        for (let i = 0; i < idKlucze.length; i++) {
-            const aktualnyId = idKlucze[i];
-            const parsedProduct = await parsedProductToTable(aktualnyId)
-
-            // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            console.log(`infromacje o produkcie: ${parsedProduct}`);
-
-        }
-
-    } catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
 
 async function modyfikujProdukt(idProduktu, noweDane) {
     const client = new MongoClient(url);
@@ -334,7 +214,20 @@ async function usunProdukt(idProduktu) {
 }
 //koniec operacji na produktach -------------------------------------------------------------------------------------------
 // operacje na zamowieniach ----------------------------------------------------------------------------------------------
+async function wypiszZamowienia() {
+    const client = new MongoClient(url);
 
+    try {
+        await client.connect();
+        const kolekcja = client.db(mainDataBase).collection(orders_collection);
+
+        const result = await kolekcja.find({}).toArray();
+        return result;
+
+    } finally {
+        await client.close();
+    }
+}
 async function dodajZamowienie(_user_id, _products_ids) {
     const client = new MongoClient(url);
 
@@ -354,115 +247,3 @@ async function dodajZamowienie(_user_id, _products_ids) {
     }
 }
 
-
-async function operateOnParsedOrder(orderId) {
-    try {
-        const parsedOrder = await parsedOrderToTable(orderId)
-            // TODO funkcja operujaca na sparsowanym użytkowniku do tablicy
-            console.log(`infromacje o użytkowniku: ${parsedOrder}`);
-        }
-
-    catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
-
-async function parsedOrderToTable(idZamowienia) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(orders_collection);
-
-        // Pobierz zamowienie
-        const order = await kolekcjaMongoDB.findOne({ _id: idZamowienia });
-
-        // Sprawdź, czy użytkownik został znaleziony
-        if (!order) {
-            console.log(`Zamowienie o ID ${idZamowienia} nie został znaleziony.`);
-            return null; // Możesz zdecydować, jak obsłużyć brak znalezionego użytkownika
-        }
-
-        // Zamień atrybuty obiektu na tablicę
-        const tablicaAtrybutow = Object.values(order);
-
-        // Zamknij połączenie z bazą danych
-        return tablicaAtrybutow;
-
-    } finally {
-        await client.close();
-    }
-}
-
-async function operateOnParsedOrders() {
-    try {
-        const idKlucze = await pobierzWszystkieIdKluczy(orders_collection);
-
-        // Iteracja po idZamomwien
-        for (let i = 0; i < idKlucze.length; i++) {
-            const aktualnyId = idKlucze[i];
-            const parsedOrder = await parsedOrderToTable(aktualnyId)
-
-            // TODO funkcja operujaca na sparsowanym zamowieniu do tablicy
-            console.log(`infromacje o zamowieniu: ${parsedOrder}`);
-        }
-
-    } catch (error) {
-        console.error('Wystąpił błąd:', error);
-        throw error;
-    }
-}
-
-
-async function modyfikujZamowienie(idZamowienia, noweDane) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(orders_collection);
-
-        // Sprawdź, czy zamówienie o danym ID istnieje
-        const istniejaceZamowienie = await kolekcjaMongoDB.findOne({ _id: idZamowienia });
-
-        if (!istniejaceZamowienie) {
-            console.log(`Zamówienie o ID ${idZamowienia} nie zostało znalezione.`);
-            return null;
-        }
-
-        // Zaktualizuj dane zamówienia
-        await kolekcjaMongoDB.updateOne({ _id: idZamowienia }, { $set: noweDane });
-
-        console.log(`Zamówienie o ID ${idZamowienia} zostało zaktualizowane.`);
-        return true;
-
-    } finally {
-        await client.close();
-    }
-}
-
-async function usunZamowienie(idZamowienia) {
-    const client = new MongoClient(url);
-
-    try {
-        await client.connect();
-        const kolekcjaMongoDB = client.db(mainDataBase).collection(orders_collection);
-
-        // Sprawdź, czy zamówienie o danym ID istnieje
-        const istniejaceZamowienie = await kolekcjaMongoDB.findOne({ _id: idZamowienia });
-
-        if (!istniejaceZamowienie) {
-            console.log(`Zamówienie o ID ${idZamowienia} nie zostało znalezione.`);
-            return null;
-        }
-
-        // Usuń zamówienie
-        await kolekcjaMongoDB.deleteOne({ _id: idZamowienia });
-
-        console.log(`Zamówienie o ID ${idZamowienia} zostało usunięte.`);
-        return true;
-
-    } finally {
-        await client.close();
-    }
-}
